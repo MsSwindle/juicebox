@@ -9,7 +9,7 @@ const {
 	addTagsToPost,
 	updatePost,
 	getUserById,
-	getPostsByTagName, // new
+	getPostsByTagName,
 } = require('./index');
 
 async function testDB() {
