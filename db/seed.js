@@ -9,6 +9,7 @@ const {
 	addTagsToPost,
 	updatePost,
 	getUserById,
+	getPostsByUser,
 	getPostsByTagName,
 } = require('./index');
 
@@ -179,7 +180,6 @@ async function createInitialPosts() {
 async function rebuildDB() {
 	try {
 		client.connect();
-
 		await dropTables();
 		await createTables();
 		await createInitialUsers();
