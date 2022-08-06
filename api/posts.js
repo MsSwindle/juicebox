@@ -5,6 +5,12 @@ const { getAllPosts, createPost, updatePost, getPostById } = require('../db');
 
 const { requireUser } = require('./utils');
 
+postsRouter.use((req, res, next) => {
+	console.log('A request is being made to /posts');
+
+	next();
+});
+
 postsRouter.post('/', requireUser, async (req, res, next) => {
 	const { title, content, tags = '' } = req.body;
 
@@ -24,11 +30,6 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
 	}
 });
 
-postsRouter.use((req, res, next) => {
-	console.log('A request is being made to /posts');
-
-	next();
-});
 
 postsRouter.get('/', async (req, res, next) => {
 	try {
@@ -109,14 +110,5 @@ postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
 	}
 });
 
-//   tagsRouter.get('/:tagName/posts', async (req, res, next) => {
-//     // read the tagname from the params
-//     try {
-//       // use our method to get posts by tag name from the db
-//       // send out an object to the client { posts: // the posts }
-//     } catch ({ name, message }) {
-//       // forward the name and message to the error handler
-//     }
-//   });
 
 module.exports = postsRouter;
