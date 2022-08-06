@@ -1,7 +1,13 @@
 const express = require('express');
 const usersRouter = express.Router();
-const { getAllUsers, getUserByUsername, createUser, getUserById, updateUser } = require('../db');
-const { requireUser, requireActiveUser } = require('./utils')
+const {
+	getAllUsers,
+	getUserByUsername,
+	createUser,
+	getUserById,
+	updateUser,
+} = require('../db');
+const { requireUser, requireActiveUser } = require('./utils');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
 
@@ -87,75 +93,90 @@ usersRouter.post('/register', async (req, res, next) => {
 	}
 });
 
-
 // gets a user by userId
 usersRouter.get('/:userId', requireUser, async (req, res, next) => {
-    try {
-        const user = await getUserById(req.params.userId);
-        
-        if (user && user.id == req.params.userId){
-            res.send(user)
-        } else {
-            next(user ? {
-                name:"UnauthorizedUserError",
-                message: "You cannot access an account that is not yours"
-            } : {
-                name: "UserNotFoundError",
-                message: "This user does not exist"
-            })
-        }
-    } catch ({ name, message }) {
-        next({ name, message })
-    }
-})
+	try {
+		const user = await getUserById(req.params.userId);
 
+		if (user && user.id == req.params.userId) {
+			res.send(user);
+		} else {
+			next(
+				user
+					? {
+							name: 'UnauthorizedUserError',
+							message:
+								'You cannot access an account that is not yours',
+					  }
+					: {
+							name: 'UserNotFoundError',
+							message: 'This user does not exist',
+					  }
+			);
+		}
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
 
 // deactivates a user
 usersRouter.delete('/:userId', requireActiveUser, async (req, res, next) => {
-    try {
-        const user = await getUserById(req.params.userId);
+	try {
+		const user = await getUserById(req.params.userId);
 
-        if (user && user.id == req.params.userId){
-            const deactivatedUser = await updateUser(user.id, { active : false });
-            res.send({
-                user: deactivatedUser
-            })
-        } else {
-            next(user ? {
-                name: "UnauthorizedUserError",
-                message: "You cannot deactivate an account that is not yours"
-            } : {
-                name: "UserNotFoundError",
-                message: "This user does not exist"
-            })
-        }
-    } catch ({ name, message }) {
-        next({ name, message })
-    }
-})
+		if (user && user.id == req.params.userId) {
+			const deactivatedUser = await updateUser(user.id, {
+				active: false,
+			});
+			res.send({
+				user: deactivatedUser,
+			});
+		} else {
+			next(
+				user
+					? {
+							name: 'UnauthorizedUserError',
+							message:
+								'You cannot deactivate an account that is not yours',
+					  }
+					: {
+							name: 'UserNotFoundError',
+							message: 'This user does not exist',
+					  }
+			);
+		}
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
 
 // reactivates user
 usersRouter.patch('/:userId', requireUser, async (req, res, next) => {
-    try {
-        const user = await getUserById(req.params.userId);
-        if (user && user.id == req.params.userId){
-            const reactivatedUser = await updateUser(user.id, { active : true });
-            res.send({
-                user: reactivatedUser
-            })
-        } else {
-            next(user ? {
-                name: "UnauthorizedUserError",
-                message: "You cannot reactivate an account that is not yours"
-            } : {
-                name: "UserNotFoundError",
-                message: "This user does not exist"
-            })
-        }
-    } catch ({ name, message }) {
-        next({ name, message })
-    }
-})
+	try {
+		const user = await getUserById(req.params.userId);
+		if (user && user.id == req.params.userId) {
+			const reactivatedUser = await updateUser(user.id, { active: true });
+			res.send({
+				user: reactivatedUser,
+			});
+		} else {
+			next(
+				user
+					? {
+							name: 'UnauthorizedUserError',
+							message:
+								'You cannot reactivate an account that is not yours',
+					  }
+					: {
+							name: 'UserNotFoundError',
+							message: 'This user does not exist',
+					  }
+			);
+		}
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
 
 module.exports = usersRouter;
 
