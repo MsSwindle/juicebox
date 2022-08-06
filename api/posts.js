@@ -3,7 +3,7 @@ const postsRouter = express.Router();
 
 const { getAllPosts, createPost, updatePost, getPostById } = require('../db');
 
-const { requireUser } = require('./utils');
+const { requireUser, requireActiveUser  } = require('./utils');
 
 postsRouter.use((req, res, next) => {
 	console.log('A request is being made to /posts');
@@ -11,7 +11,23 @@ postsRouter.use((req, res, next) => {
 	next();
 });
 
-postsRouter.post('/', requireUser, async (req, res, next) => {
+postsRouter.get('/', async (req, res, next) => {
+	try {
+		const allPosts = await getAllPosts();
+
+		const posts = allPosts.filter((post) => {
+			return post.active || (req.user && post.author.id === req.user.id);
+		});
+
+		res.send({
+			posts,
+		});
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
+
+postsRouter.post('/', requireActiveUser, async (req, res, next) => {
 	const { title, content, tags = '' } = req.body;
 
 	const tagArr = tags.trim().split(/\s+/);
@@ -31,23 +47,8 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
 });
 
 
-postsRouter.get('/', async (req, res, next) => {
-	try {
-		const allPosts = await getAllPosts();
 
-		const posts = allPosts.filter((post) => {
-			return post.active || (req.user && post.author.id === req.user.id);
-		});
-
-		res.send({
-			posts,
-		});
-	} catch ({ name, message }) {
-		next({ name, message });
-	}
-});
-
-postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
+postsRouter.patch('/:postId', requireActiveUser, async (req, res, next) => {
 	const { postId } = req.params;
 	const { title, content, tags } = req.body;
 
@@ -82,7 +83,7 @@ postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
 	}
 });
 
-postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
+postsRouter.delete('/:postId', requireActiveUser, async (req, res, next) => {
 	try {
 		const post = await getPostById(req.params.postId);
 
